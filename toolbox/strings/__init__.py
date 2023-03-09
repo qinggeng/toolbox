@@ -125,3 +125,38 @@ def auto_wrap(s, line_width):
 
     # 返回连接后的字符串
     return ''.join(lines)
+
+def string_length(str):
+    """测量包含全角和半角字符的字符串长度，全角字符长度为2，半角字符长度为1"""
+
+    length = 0
+    for c in str:
+        if ord(c) < 128:
+            # 半角字符
+            length += 1
+        else:
+            # 全角字符
+            length += 2
+
+    return length
+
+def center(text, width, fillchar=' '):
+    """使一行字符串居中显示在宽度为width的屏幕上"""
+    str_len = string_length(text)
+
+    if str_len >= width:
+        return text
+
+    spaces = width - str_len
+    left_spaces = spaces // 2
+    right_spaces = spaces - left_spaces
+
+    return f"{fillchar * left_spaces}{text}{fillchar * right_spaces}"
+
+def banner(text, border = '#', prefix = "", *, padding = 1, width = 40):
+    """绘制矩形标题"""
+    lines = text.split('\n')
+    print(border * width)
+    for lp in [center(l, width-4) for l in lines]:
+        print(border,lp,border)
+    print(border * width)
