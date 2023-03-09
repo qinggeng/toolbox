@@ -156,7 +156,7 @@ def center(text, width, fillchar=' '):
 def banner(text, border = '#', prefix = "", *, padding = 1, width = 40):
     """绘制矩形标题"""
     lines = text.split('\n')
-    print(border * width)
+    print(prefix + border * width)
     for lp in [center(l, width-4) for l in lines]:
-        print(border,lp,border)
-    print(border * width)
+        print(prefix+border,lp,border)
+    print(prefix+border * width)
