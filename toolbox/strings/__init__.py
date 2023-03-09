@@ -1,3 +1,5 @@
+import unicodedata
+
 def sep(input_val, sep=" ", sep_len=4):
     """
     将数字或字符串格式化，以指定的分隔长度和分隔符分隔。
@@ -88,3 +90,38 @@ def emph(text, bold=True, italic=False):
         code = '\033[{}m'.format(code)
 
     return '{}{}{}\033[0m'.format(code, text, '\033[0m' if code else '')
+
+
+def auto_wrap(s, line_width):
+    """ 自动换行函数，将字符串 s 按照 line_width 宽度分成多行 """
+
+    # 记录换行后拆分的每行字符串
+    lines = []
+
+    # 记录当前行已经填充宽度
+    current_width = 0
+
+    # 循环遍历每个字符
+    for ch in s:
+
+        # 判断字符是否为全角字符，宽度为一个半角字符宽度的两倍
+        if unicodedata.east_asian_width(ch) == 'W':
+            char_width = 2
+        else:
+            char_width = 1
+
+        # 判断是否需要换行
+        if current_width + char_width > line_width:
+            if current_width < line_width:
+                lines.append(" ")
+            lines.append('\n')
+            current_width = 0
+
+        # 添加当前字符到当前行
+        lines.append(ch)
+
+        # 更新当前行宽度
+        current_width += char_width
+
+    # 返回连接后的字符串
+    return ''.join(lines)
