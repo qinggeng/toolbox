@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 用于导出和导入Python依赖包的脚本。
 
