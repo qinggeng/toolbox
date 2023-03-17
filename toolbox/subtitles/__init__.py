@@ -71,3 +71,30 @@ def get_srt_info(srt_string):
         prev_end = sub.end
 
     return results
+
+def find_nearest_subs(subs_list, interval=20, search_range=5):
+    """
+    寻找一句话结尾的字幕
+    :param subs_list: pysrt.SubRipFile.from_string生成的字幕列表
+    :param interval: 遍历间隔，默认为20条字幕
+    :param search_range: 搜索范围，默认为5条字幕
+    :return: 索引值的列表
+    """
+    results = []
+    for i in range(interval, len(subs_list), interval):
+        current = subs_list[i]
+        min_index = max(i - search_range, 0)
+        max_index = min(i + search_range, len(subs_list) - 1)
+        
+        nearest_index = i + search_range # 初始化最近的索引为当前索引
+        
+        for j in range(min_index, max_index):
+            if j == i:
+                continue # 跳过当前索引
+            if subs_list[j].text.endswith((".", "?", "!", ":")):
+                if abs(i-j) < abs(i-nearest_index): # 找到更近的索引
+                    nearest_index = j
+        
+        results.append(nearest_index)
+    
+    return results

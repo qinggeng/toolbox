@@ -1,5 +1,6 @@
 import os
 import os.path
+from typing import Callable, Any
 
 def transform_file(input_path: str, output_path: str = None, process_func=None) -> None:
     """
@@ -42,3 +43,48 @@ def transform_file(input_path: str, output_path: str = None, process_func=None) 
     # 将处理结果写入输出文件
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(output_content)
+
+def inorder_traversal(root, condition_func: Callable[[Any], bool]) -> Any:
+  """
+  中序遍历一颗树，并使用判定函数判断当前节点是否符合条件。
+
+  Args:
+    root: 根节点对象
+    condition_func: 判定函数，参数为节点的值，返回值为bool类型
+
+  Returns:
+    所有符合条件的节点对象(generater)
+
+  Raises:
+    TypeError: 如果root不是一个树节点对象或condition_func不是一个可调用对象
+
+  Examples:
+
+    >>> root = TreeNode(1, [TreeNode(2, [TreeNode(4)]), TreeNode(3)])
+    >>> def condition(val):
+    ...   return val > 2
+    >>> for node in inorder_traversal(root, condition):
+    ...   print(node.value)
+    4
+    3
+  """
+  if not callable(condition_func):
+    raise TypeError("condition_func参数必须是一个可调用对象")
+
+  visited = set() # 用于存储访问过的节点
+  stack = [root]  # 用于模拟递归的栈
+
+  while stack:
+    current_node = stack.pop()
+    if current_node not in visited:
+      visited.add(current_node) # 加入visited中，标识已访问
+      if not hasattr(current_node, 'children') or not current_node.children:
+        # 如果当前节点没有children属性或children为空，则为叶节点
+        if condition_func(current_node):
+          yield current_node
+      else:
+        # 如果当前节点有children，则将children逆序加入stack中，这样可以实现中序遍历
+        if condition_func(current_node):
+          yield current_node
+        for child in current_node.children[::-1]:
+          stack.append(child)

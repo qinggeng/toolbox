@@ -13,6 +13,18 @@ files = [
 ]
 
 [[package]]
+name = "mistune"
+version = "2.0.5"
+description = "A sane Markdown parser with useful plugins and renderers"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "mistune-2.0.5-py2.py3-none-any.whl", hash = "sha256:bad7f5d431886fcbaf5f758118ecff70d31f75231b34024a1341120340a65ce8"},
+    {file = "mistune-2.0.5.tar.gz", hash = "sha256:0246113cb2492db875c6be56974a7c893333bf26cd92891c85f63151cee09d34"},
+]
+
+[[package]]
 name = "pysrt"
 version = "1.1.2"
 description = "SubRip (.srt) subtitle parser and writer"
@@ -29,4 +41,4 @@ chardet = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4cd2a53038fb70e571b98659c9b49be81a3d7eec328b3009f4d86bebe4e89d4a"
+content-hash = "37382caab099893b01f6d6cd038b8af0af552b8cf3d13a654ee67ed601c6f26d"
