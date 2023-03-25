@@ -30,10 +30,6 @@ sound = AudioSegment.from_file(input_file_path)
 # 定义用于分割音频的最小静默时长
 min_silence_len = int(args["silent"] * 1000)  # 将秒转换为毫秒
 
-print(output_dir_path)
-print(min_silence_len)
-print(input_file_path)
-
 # 根据静默时长将音频分割成多个块
 chunks = split_on_silence(sound, 
                           min_silence_len=min_silence_len, 
