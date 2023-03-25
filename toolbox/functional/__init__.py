@@ -88,3 +88,4 @@ def inorder_traversal(root, condition_func: Callable[[Any], bool]) -> Any:
           yield current_node
         for child in current_node.children[::-1]:
           stack.append(child)
+
