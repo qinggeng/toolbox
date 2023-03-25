@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.10"
 pysrt = "^1.1.2"
 mistune = "^2.0.5"
+pydub = "^0.25.1"
 
 
 [build-system]

@@ -25,6 +25,18 @@ files = [
 ]
 
 [[package]]
+name = "pydub"
+version = "0.25.1"
+description = "Manipulate audio with an simple and easy high level interface"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6"},
+    {file = "pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"},
+]
+
+[[package]]
 name = "pysrt"
 version = "1.1.2"
 description = "SubRip (.srt) subtitle parser and writer"
@@ -41,4 +53,4 @@ chardet = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "37382caab099893b01f6d6cd038b8af0af552b8cf3d13a654ee67ed601c6f26d"
+content-hash = "6282184df049c32e388b27108013a34b187aba165a27a9303d2be4695e997819"
