@@ -1,4 +1,29 @@
 import subprocess
+import re
+
+def extract_commit_info(line: str) -> dict:
+    """
+    通过正则表达式从字符串中提取commit信息
+
+    Args:
+        line: 包含commit信息的字符串.
+
+    Returns:
+        包含commit信息的字典对象或None
+    """
+
+    regex = r'^([^\s]+)\s\((.*?)\s+(\d{4}-\d{2}-\d{2})\s+(\d+)\)\s(.*)$'
+    match = re.match(regex, line)
+    if match:
+        commit_hash = match.group(1)
+        author = match.group(2)
+        date = match.group(3)
+        line_no = match.group(4)
+        content = match.group(5)
+        return {'commit_hash': commit_hash, 'author': author, 'date': date,
+                'line_no': line_no, 'content': content}
+    else:
+        return None
 
 def get_commit_info(filename):
   """
@@ -16,26 +41,13 @@ def get_commit_info(filename):
   """
   # 执行 git 命令
   cmd = ["git", "blame", "--date=short", filename]
-  result = subprocess.check_output(cmd).decode().split("\n")
+  print(" ".join(cmd))
+  result = subprocess.check_output(cmd).decode().strip().split("\n")
   
   # 解析结果
   commit_info = []
   for line in result:
-    if not line.strip():
-      continue
-    # 每一行都会以此格式开头：commit_hash author_name date time tz_offset line_content
-    # 我们通过字符串的分割来提取每个数据项
-    # 顺序就是：commit_hash -> 作者名(author_name) -> 日期(date) -> 时间(time) -> 时区偏移(tz_offset) -> 代码行(line_content)
-    commit_hash, author_name, date, time, tz_offset, *content = line.split()
-    # 由于作者名前后都有括号，我们需要去掉它们来提取纯粹的作者名称
-    author = author_name.lstrip("(").rstrip(")")
-    # 将日期、时间和时区偏移组合为一个字符串
-    commit_date = f"{date} {time} ({tz_offset})"
-    # 将代码行内容连接为一个字符串
-    content = " ".join(content)
-    # 为每一条记录组装为 元组 (author, commit_date, content) ，并添加到 commit_info 列表中
-    commit_info.append((author, commit_date, content))
-  
+    commit_info.append(extract_commit_info(line))
   return commit_info
 
 def get_user_files():
@@ -45,7 +57,74 @@ def get_user_files():
     """
     # 使用 Git 命令列出当前用户提交过的所有文件，并将输出作为字符串返回
     cmd = "git log --author=$(git config user.name) --pretty=format: --name-only | sort -u"
-    output = subprocess.check_output(cmd, shell=True, encoding="utf-8").splitlines()
+    output = subprocess.check_output(cmd, shell=True, encoding="utf-8").strip().splitlines()
     
     # 将输出字符串分割为一行行的列表并返回
     return output
+
+def git_changed_files():
+    """
+    使用Git命令列出所有有变更和新添加的文件列表，但不显示被删除的文件。
+    :return: 一个字符串列表，包含所有Git中被修改或新添加的文件。
+    """
+    command = "git status --short | grep '^ M\\|^A'"
+
+    # 运行Git命令并捕获输出和错误信息
+    output = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # 检查Git命令是否运行成功
+    if output.returncode != 0:
+        # 如果命令运行失败，则将错误信息解码为字符串并引发异常。
+        error_message = output.stderr.decode().strip()
+        raise RuntimeError(f"Error running Git command. Error: {error_message}")
+
+    # 如果Git命令成功运行，则按空格拆分标准输出字符串并返回文件列表。
+    changed_files = output.stdout.decode().split()
+    return changed_files
+
+def list_untracked_files():
+    """
+    找出 Git 仓库中未被跟踪的文件，并返回文件名列表。
+    
+    Returns:
+        List[str]: 未被跟踪的文件名列表
+    
+    Examples:
+        >>> untracked_files()
+        ['example.txt', 'example_dir/sample.txt']
+    """
+    # 执行 shell 命令来获取未被跟踪的文件列表
+    command = 'git status --porcelain | grep "^??" | cut -c4-'
+    output = subprocess.run(command, shell=True, capture_output=True, text=True).stdout.strip().split('\n')
+    
+    untracked_files = []
+    for file in output:
+        if os.path.isdir(file):
+            # 如果这个文件是目录，则递归处理其中的文件
+            sub_files = [os.path.join(file, f) 
+                         for f in os.listdir(file) 
+                         if os.path.isfile(os.path.join(file, f))]
+            untracked_files.extend(sub_files)
+        else:
+            # 如果这个文件不是目录，则直接添加到未被跟踪文件列表中
+            untracked_files.append(file)
+    return untracked_files
+
+def list_unpushed_files(remote='origin', branch='master'):
+    """
+    列出当前分支中已经commit但是还未push到远程仓库的文件列表。
+
+    Args:
+        remote: 远程仓库的名称，默认为 'origin'
+        branch: 要对比的远程分支名称，默认为 'master'
+
+    Returns:
+        未push的文件名列表
+    """
+    # 使用subprocess模块执行git命令
+    diff_cmd = f"git log {remote}/{branch}..HEAD --name-only --pretty=format: | sort | uniq"
+    result = subprocess.run(diff_cmd, stdout=subprocess.PIPE, shell = True)
+    # 获取输出并以换行符分隔
+    output_lines = result.stdout.decode('utf-8').strip().splitlines()
+    # 返回结果列表
+    return output_lines

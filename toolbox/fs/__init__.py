@@ -1,5 +1,6 @@
 import os
 import re
+import fnmatch
 
 # 搜索文件
 def search_files(*, start_dir, file_name, skip_dirs):
@@ -26,3 +27,28 @@ def search_files(*, start_dir, file_name, skip_dirs):
             if not found_file:
                 result[root] = None
     return result
+
+def find_matching_files(directory_list, filename_templates):
+    """查找给定目录下所有匹配指定文件名模板的文件
+
+    参数:
+    directory_list: 待查找目录的列表
+    filename_templates: 指定文件名模板的列表
+
+    返回值:
+    包含所有匹配的文件的列表
+
+    """
+
+    matching_files = []  # 存储匹配的文件列表
+
+    for directory in directory_list:  # 遍历目录列表
+        for root, dirs, files in os.walk(directory):  # 使用os.walk遍历目录及其下级目录
+            for filename in files:  # 遍历目录下的每个文件
+                for template in filename_templates:  # 遍历文件名模板列表中的每个模板
+                    # 如果文件名与某个模板匹配，则将该文件的完整路径添加到结果列表中
+                    if fnmatch.fnmatch(filename, template):
+                        matching_files.append(os.path.join(root, filename))
+    
+    # 返回所有匹配文件的列表
+    return matching_files
