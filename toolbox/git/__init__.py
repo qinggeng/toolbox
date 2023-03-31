@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 
 def get_commit_info(filename):
   """
@@ -49,3 +50,40 @@ def get_user_files():
     
     # 将输出字符串分割为一行行的列表并返回
     return output
+
+def git_clone_and_move_dir(*, github_account=None, github_token=None, git_url, src_dir, dest_dir, branch=None):
+    """
+    克隆 Git 仓库，并移动指定目录到另一个目录
+
+    Arguments:
+    * -- 使用关键字参数传递
+    github_account -- 您的 GitHub 账号名（可选）
+    github_token -- 您的 GitHub 账号 token（可选）
+    git_url -- 需要克隆的 Git 仓库地址
+    src_dir -- 需要移动的目录路径
+    dest_dir -- 目标目录路径
+    branch -- 需要克隆的分支名称，默认为 Git 仓库的默认分支名称
+
+    Returns:
+    无返回值，执行完毕后将会克隆 Git 仓库，移动指定目录，并删除克隆的本地工作目录
+    """
+
+    # 添加 GitHub 账号认证信息，如果没有提供账号信息，则表示是克隆公开仓库
+    if github_account and github_token:
+        auth = f"{github_account}:{github_token}"
+        auth_str = f"{auth}@"
+        git_url = git_url.replace("https://", f"https://{auth_str}")
+
+    # 克隆 Git 仓库到一个临时目录
+    tmp_dir = "/tmp/git_clone_tmp"
+    if branch:
+        subprocess.run(["git", "clone", "-b", branch, git_url, tmp_dir])
+    else:
+        subprocess.run(["git", "clone", git_url, tmp_dir])
+
+    # 移动指定目录到目标目录
+    src_path = f"{tmp_dir}/{src_dir}"
+    shutil.move(src_path, dest_dir)
+
+    # 删除克隆的工作目录
+    shutil.rmtree(tmp_dir)
