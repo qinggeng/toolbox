@@ -18,14 +18,15 @@ def draw_text(text, font_size=12, font_file=None, color=(0, 0, 0)):
   print(font_size)
   font = ImageFont.truetype(font_file, font_size) if font_file else ImageFont.load_default()
   text_width, text_height = font.getsize(text)
-  image_size = (text_width+1, text_height+1)
+  image_size = (text_width+1, (text_height+1) * (text.count('\n') + 1 ))
 
   # 创建新图片（透明背景）
   image = Image.new("RGBA", image_size, (255, 255, 255, 0))
 
   # 获取图片的Draw对象并绘制文字
   draw = ImageDraw.Draw(image)
-  draw.text((0, 0), text, font=font, fill=color)
+  # draw.text((0, 0), text, font=font, fill=color)
+  draw.multiline_text((0, 0), text, font = font, fill = color)
 
   return image
 
