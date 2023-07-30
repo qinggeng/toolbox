@@ -34,6 +34,7 @@ ap.add_argument("-o", "--output", default=None, help="输出目录的路径")
 ap.add_argument("-s", "--silent", type=float, default=0.5, help="用于分割音频的最小静默时长（以秒为单位）")
 ap.add_argument("--max", type=float, default=30, help="用于分割音频的最大时长（以秒为单位）")
 ap.add_argument("--min", type=float, default=8, help="用于分割音频的最小时长（以秒为单位）")
+ap.add_argument("--sample-rate", type = int, default = 16000, help="输出的采样频率")
 args = vars(ap.parse_args())
 
 # 获取输入音频的路径和文件名
@@ -76,6 +77,6 @@ chunks = merge_audio_segments(chunks, min_segment_len)
 for i, chunk in enumerate(chunks):
     output_file_name = f"{os.path.splitext(input_file_name)[0]}-{i}.wav"
     output_file_path = os.path.join(output_dir_path, output_file_name)
-    chunk.set_frame_rate(16000).export(output_file_path, format="wav")
+    chunk.set_frame_rate(args["sample_rate"]).export(output_file_path, format="wav")
     
 print(f"{len(chunks)}个音频块已经导出到目录：{output_dir_path}")

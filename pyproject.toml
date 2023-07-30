@@ -11,6 +11,8 @@ pysrt = "^1.1.2"
 mistune = "^2.0.5"
 pydub = "^0.25.1"
 pillow = "^9.5.0"
+git-python = "^1.0.3"
+huggingface-hub = "^0.14.1"
 
 
 [build-system]
