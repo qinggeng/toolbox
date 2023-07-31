@@ -27,7 +27,6 @@ def draw_text(text, font_size=12, font_file=None, color=(0, 0, 0)):
   draw = ImageDraw.Draw(image)
   # draw.text((0, 0), text, font=font, fill=color)
   draw.multiline_text((0, 0), text, font = font, fill = color)
-
   return image
 
 def pt_to_px(font_size_pt, dpi=72):
@@ -90,3 +89,82 @@ def get_bounding_box(image: Image) -> tuple:
       y_max = i
 
   return x_min, y_min, x_max, y_max
+
+def remove_border(image: Image) -> Image:
+  """
+  去除图片边框。
+
+  Args:
+      image: PIL Image 对象。
+
+  Returns:
+      去除图片边框后的 Image 对象。
+  """
+  bbox = image.getbbox()
+  return image.crop(bbox)
+
+def extend_image(image: Image, 
+                  *, 
+                  ratio_h, 
+                  ratio_w, 
+                  color = (0, 0, 0, 0), 
+                  mask = None)->Image:
+  """
+  增加图片边框。
+
+  Args:
+      image: PIL Image 对象。
+      ratio_h: 图片高度的比例。
+      ratio_w: 图片宽度的比例。
+      color: 边框颜色。
+      mask: 图像掩码。
+  """
+  orig_sz = image.size
+  w, h = orig_sz
+  new_h, new_w = int(h * ratio_h), int(w * ratio_w)
+  new_sz = (new_w, new_h)
+  new_image = Image.new('RGBA', new_sz, color)
+  paste_x = int((new_sz[0] - w) / 2)
+  paste_y = int((new_sz[1] - h) / 2)
+  new_image.paste(image, (paste_x, paste_y), mask = mask)
+  return new_image
+
+a4_vertical_size = (2481, 3507)
+a4_horizontal_size = (3507, 2481)
+a4_vertical_padding = 177
+a4_horizontal_padding = 167
+
+def divide_rectangle(x1, y1, x2, y2, cols, rows):
+  rectangle_list = []
+  width = abs(x2 - x1)
+  height = abs(y2 - y1)
+  col_width = width / cols
+  row_height = height / rows
+
+  for row in range(rows):
+    for col in range(cols):
+      left = int(x1 + col * col_width)
+      top = int(y1 + row * row_height)
+      right = int(left + col_width)
+      bottom = int(top + row_height)
+      rectangle_list.append((left, top, right, bottom))
+
+  return rectangle_list
+
+def split_paper(
+    *,
+    rows,
+    columns,
+    page_size = a4_vertical_size,
+    paddings = (a4_horizontal_padding, a4_vertical_padding),
+  ):
+  top_left = (paddings[0], paddings[1])
+  bottom_right = (page_size[0] - paddings[0], page_size[1] - paddings[1])
+  return divide_rectangle(
+    top_left[0],
+    top_left[1],
+    bottom_right[0],
+    bottom_right[1],
+    columns,
+    rows
+  )
