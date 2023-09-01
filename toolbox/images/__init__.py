@@ -168,3 +168,27 @@ def split_paper(
     columns,
     rows
   )
+
+   ###      #####     ######    ##    ##
+  ####     ######    #######    ##    ##
+  ####     ###  #   ###    #    ##    ##
+  #####    ####     ###         ##    ##
+ ### ##     ####    ##          ##    ##
+ ##  ###     #####  ###         ##    ##
+########   #   ###  ###    #    ##    ##
+########   #######   #######    ##    ##
+##    ###  ######     ######    ##    ##
+
+def get_pixel_char(p, threshhold):
+  r,g,b,a = p
+  if a > threshhold:
+    return "#"
+  return " "
+
+def txt2asciiart(txt, font_size, font_file_path, threshhold = 100):
+  i = draw_text(txt, font_size, font_file=font_file_path, color = (255, 255, 255))
+  bbox = i.getbbox()
+  i = i.crop(bbox)
+  w, h = i.size
+  ascii_txt = '\n'.join([''.join([f"{get_pixel_char(i.getpixel((x, y)), threshhold)}" for x in range(w)]) for y in range(h)])
+  return ascii_txt
